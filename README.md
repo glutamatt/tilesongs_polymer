@@ -2,4 +2,4 @@
 bower install
 python -m SimpleHTTPServer
 ```
-enjoy
+authorize browser popups (to log into deezer) and enjoy at [http://localhost:8000/](http://localhost:8000/)

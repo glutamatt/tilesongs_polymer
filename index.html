@@ -2,23 +2,59 @@
 <html>
   <head>
     <script src="/bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="import" href="/bower_components/paper-toast/paper-toast.html">
+    <link rel="import" href="/bower_components/paper-input/paper-input.html">
     <link rel="import" href="song-list.html">
   </head>
   <body>
     <div id="dz-root"></div>
+    
+    <paper-input label="New Favorite Song Id" id="new-fav-input" pattern="\d+" error-message="digits only!" auto-validate></paper-input>
+    
     <song-list id="songList"></song-list>
+    <paper-toast id="app-toast"></paper-toast>
 
     <script src="https://cdns-files.deezer.com/js/min/dz.js"></script>
     <script>
+
+        var toasMessage = function (message) {
+            var toast = document.querySelector('#app-toast')
+            toast.text = message
+            toast.show()
+        }
+
+        document.querySelector('#new-fav-input').addEventListener('keypress', function (e) {
+            if(e.keyCode != 13) return
+            DZ.api('/user/me/tracks', 'POST', {track_id : e.target.value}, function(response){
+                if (!response) {
+                    toasMessage('Unable to add song id ' + e.target.value + ' to favorites')
+                    return
+                }
+                e.target.value = ''
+                toasMessage('Song id ' + e.target.value + ' added to favorites')
+                loadSongs()
+            });
+        });
+
+        document.querySelector('#songList').addEventListener('song-removed', function (e) {
+            DZ.api('/user/me/tracks', 'DELETE', {track_id : e.detail.id}, function(response){
+                response && toasMessage('Your favorite song "' + e.detail.title + '"" has been deleted.')
+            });
+        })
+
+        var loadSongs = function () {
+            DZ.api('/user/me/tracks', function(response) {
+                document.getElementById('songList').songEntities = response.data
+            });
+        }
+
         DZ.init({appId  : '164775', channelUrl : 'http://' + document.location.host + '/channel.html'});
         DZ.login(function(response) {
             if (!response.authResponse) {
                 alert('No Auth :/ User cancelled login or did not fully authorize.')
                 return
             }
-            DZ.api('/user/me/tracks', function(response) {
-                document.getElementById('songList').songEntities = response.data
-            });
+            loadSongs()
         }, {perms: 'basic_access,manage_library,delete_library'});
     </script>
 

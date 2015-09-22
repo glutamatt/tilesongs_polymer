@@ -15,7 +15,7 @@
         <template is="dom-repeat" items="{{songEntities}}" sort="sortSongs">
             <paper-card heading="{{item.title}}" image="{{item.album.cover_medium}}">
               <div class="card-content">
-                <span>{{item.duration}}</span> secondes
+                <small><span>{{item.duration}}</span> secondes</small>
                 <paper-icon-button icon="delete" on-click="delete"></paper-icon-button>
             </div>
             </paper-card>
@@ -53,11 +53,13 @@
             this.songEntities = save
         },
         delete: function(e) {
-            console.log(this.songEntities.indexOf(e.model.item))
-            this.songEntities.splice(this.songEntities.indexOf(e.model.item), 1);
-            this.refreshList();
+            var song = e.model.item
+            this.splice('songEntities', this.songEntities.indexOf(song), 1);
+            this.fire('song-removed', song);
         },
-        properties: {songEntities: []}
+        properties: {
+            songEntities: {type: Array, value: function() { return [] }}
+        }
     });
   </script>
 
