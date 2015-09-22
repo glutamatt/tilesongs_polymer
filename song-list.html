@@ -1,0 +1,64 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/paper-card/paper-card.html">
+<link rel="import" href="/bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/paper-toggle-button/paper-toggle-button.html">
+
+<dom-module id="song-list">
+  <template>
+        <div>
+            Sort Desc : 
+            <paper-toggle-button on-change="sortTitle"></paper-toggle-button>Title
+            <paper-toggle-button on-change="sortDuration"></paper-toggle-button>Duration
+        </div>
+
+        <template is="dom-repeat" items="{{songEntities}}" sort="sortSongs">
+            <paper-card heading="{{item.title}}" image="{{item.album.cover_medium}}">
+              <div class="card-content">
+                <span>{{item.duration}}</span> secondes
+                <paper-icon-button icon="delete" on-click="delete"></paper-icon-button>
+            </div>
+            </paper-card>
+        </template>
+  </template>
+
+  <script>
+    Polymer({
+        is: "song-list",
+        sortTitleAscend: 0,
+        sortDurationAscend: 0,
+        sortProperty:'title',
+        sortSongs: function (songA, songB) {
+            if (songB[this.sortProperty] == songA[this.sortProperty]) return 0
+            if (this.sortProperty == 'title') {
+                return (songB[this.sortProperty] < songA[this.sortProperty] ? 1 : -1) * (this.sortTitleAscend ? -1 : 1)
+            }
+            if (this.sortProperty == 'duration') {
+                return (songA.duration - songB.duration) * (this.sortDurationAscend ? -1 : 1)
+            }
+        },
+        sortTitle: function() {
+            this.sortTitleAscend ^= 1
+            this.sortProperty = 'title'
+            this.refreshList()
+        },
+        sortDuration: function() {
+            this.sortDurationAscend ^= 1
+            this.sortProperty = 'duration'
+            this.refreshList()
+        },
+        refreshList: function() {
+            var save = this.songEntities
+            this.songEntities = []
+            this.songEntities = save
+        },
+        delete: function(e) {
+            console.log(this.songEntities.indexOf(e.model.item))
+            this.songEntities.splice(this.songEntities.indexOf(e.model.item), 1);
+            this.refreshList();
+        },
+        properties: {songEntities: []}
+    });
+  </script>
+
+</dom-module>

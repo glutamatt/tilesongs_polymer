@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="/bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="import" href="song-list.html">
+  </head>
+  <body>
+    <div id="dz-root"></div>
+    <song-list id="songList"></song-list>
+
+    <script src="https://cdns-files.deezer.com/js/min/dz.js"></script>
+    <script>
+        DZ.init({appId  : '164775', channelUrl : 'http://' + document.location.host + '/channel.html'});
+        DZ.login(function(response) {
+            if (!response.authResponse) {
+                alert('No Auth :/ User cancelled login or did not fully authorize.')
+                return
+            }
+            DZ.api('/user/me/tracks', function(response) {
+                document.getElementById('songList').songEntities = response.data
+            });
+        }, {perms: 'basic_access,manage_library,delete_library'});
+    </script>
+
+  </body>
+</html>
